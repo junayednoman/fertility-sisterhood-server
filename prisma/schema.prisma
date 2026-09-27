@@ -1,0 +1,282 @@
+// This is your Prisma schema file
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Auth {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  email         String         @unique
+  password      String
+  name          String
+  role          UserRole
+  status        UserStatus     @default(PENDING)
+  loginProvider LoginProvider
+  fcmToken      String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  otp           OTP?
+  notifications Notification[]
+  symptoms      Symptom[]
+  appointments  Appointment[]
+  medications   Medication[]
+  journals      Journal[]
+  checklists    Checklist[]
+  costs         Cost[]
+  cycles        Cycle[]
+  testResults   TestResult[]
+  notes         Note[]
+  questions     Question[]
+  documents     Document[]
+}
+
+model OTP {
+  id                String     @id @default(auto()) @map("_id") @db.ObjectId
+  authId            String     @unique @db.ObjectId
+  otp               String
+  expires           DateTime
+  attempts          Int        @default(0)
+  isVerified        Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  purpose           OTPPurpose
+  resetTokenExpires DateTime?
+  resetTokenHash    String?
+  auth              Auth       @relation(fields: [authId], references: [id])
+
+  @@unique([authId, purpose])
+}
+
+model Symptom {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  authId      String      @db.ObjectId
+  auth        Auth        @relation(fields: [authId], references: [id])
+  moods       Mood[]
+  symptomName SymptomName
+  note        String?
+  date        DateTime    @default(now())
+}
+
+model Appointment {
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  authId    String     @db.ObjectId
+  auth      Auth       @relation(fields: [authId], references: [id])
+  doctor    String
+  date      DateTime
+  time      String
+  createdAt DateTime   @default(now())
+  questions Question[]
+}
+
+model Medication {
+  id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+  authId               String                @db.ObjectId
+  auth                 Auth                  @relation(fields: [authId], references: [id])
+  name                 String
+  dose                 String
+  frequency            String
+  type                 String
+  startDate            DateTime
+  endDate              DateTime
+  createdAt            DateTime              @default(now())
+  medicationChecklists MedicationChecklist[]
+}
+
+model MedicationChecklist {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  medicationId String     @db.ObjectId
+  medication   Medication @relation(fields: [medicationId], references: [id])
+  date         DateTime   @default(now())
+}
+
+model Journal {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  authId    String   @db.ObjectId
+  auth      Auth     @relation(fields: [authId], references: [id])
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Checklist {
+  id          String            @id @default(auto()) @map("_id") @db.ObjectId
+  authId      String            @db.ObjectId
+  auth        Auth              @relation(fields: [authId], references: [id])
+  title       String
+  category    ChecklistCategory
+  date        DateTime
+  description String?
+  status      ChecklistStatus   @default(PENDING)
+  createdAt   DateTime          @default(now())
+}
+
+model Cost {
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  authId      String       @db.ObjectId
+  auth        Auth         @relation(fields: [authId], references: [id])
+  amount      Float
+  date        DateTime
+  isPaid      Boolean
+  ivfRound    CostIvfRound
+  type        CostType
+  category    CostCategory
+  description String?
+  createdAt   DateTime     @default(now())
+}
+
+model Cycle {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  authId String   @db.ObjectId
+  auth   Auth     @relation(fields: [authId], references: [id])
+  date   DateTime
+  number Int
+}
+
+model TestResult {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  authId    String   @db.ObjectId
+  auth      Auth     @relation(fields: [authId], references: [id])
+  name      String
+  date      DateTime
+  value     String
+  unit      String
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  authId String   @db.ObjectId
+  auth   Auth     @relation(fields: [authId], references: [id])
+  date   DateTime
+  note   String?
+  file   String
+}
+
+model Notification {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  authId  String   @db.ObjectId
+  auth    Auth     @relation(fields: [authId], references: [id])
+  title   String
+  message String
+  seen    Boolean  @default(false)
+  sentAt  DateTime @default(now())
+}
+
+model Question {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  authId        String      @db.ObjectId
+  auth          Auth        @relation(fields: [authId], references: [id])
+  text          String
+  appointmentId String      @db.ObjectId
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  createdAt     DateTime    @default(now())
+}
+
+model Note {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  authId      String   @db.ObjectId
+  auth        Auth     @relation(fields: [authId], references: [id])
+  title       String
+  description String?
+  date        DateTime
+  tags        String[]
+}
+
+model Legal {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  privacyPolicy  String
+  termsCondition String
+  aboutUs        String
+  updatedAt      DateTime @updatedAt
+
+  @@map("legal")
+}
+
+enum CostCategory {
+  CONSULTATION
+  MEDICATION
+  MONITORING
+  EGG_RETRIEVAL
+  EMBRYO_TRANSFER
+  LAB_AND_GENETIC_TEST
+  STORAGE_AND_FREEZING
+  TRAVEL
+  DEPOSIT
+  OTHER
+}
+
+enum CostType {
+  ONE_OFF
+  PACKAGE
+  DEPOSIT
+}
+
+enum CostIvfRound {
+  ROUND_1
+  ROUND_2
+  ROUND_3
+  ROUND_4
+  UNSURE
+}
+
+enum ChecklistStatus {
+  PENDING
+  COMPLETED
+}
+
+enum ChecklistCategory {
+  MEDICAL
+  FINANCIAL
+  LIFESTYLE
+  WELLBEING
+  PARTNER
+  LOGISTIC
+}
+
+enum Mood {
+  HAPPY
+  CALM
+  NEUTRAL
+  SAD
+  ANXIOUS
+}
+
+enum SymptomName {
+  BLOATING
+  FATIGUE
+  HEADACHE
+  NAUSEA
+  BREAST_TENDERNESS
+  CAMPING
+  OTHER
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum LoginProvider {
+  FACEBOOK
+  GOOGLE
+  EMAIL
+}
+
+enum OTPPurpose {
+  VERIFY_ACCOUNT
+  RESET_PASSWORD
+}
