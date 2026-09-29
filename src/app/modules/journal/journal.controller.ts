@@ -13,6 +13,7 @@ const create = handleAsyncRequest(async (req: TRequest, res: Response) => {
     data,
   });
 });
+
 const getMy = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const data = await journalServices.getMy(
     req.user!.id,
@@ -20,4 +21,22 @@ const getMy = handleAsyncRequest(async (req: TRequest, res: Response) => {
   );
   sendResponse(res, { message: "Journal entries fetched successfully!", data });
 });
-export const journalController = { create, getMy };
+
+const update = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await journalServices.update(
+    req.user!.id,
+    req.params.id as string,
+    req.body
+  );
+  sendResponse(res, { message: "Journal entry updated successfully!", data });
+});
+
+const remove = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await journalServices.remove(
+    req.user!.id,
+    req.params.id as string
+  );
+  sendResponse(res, { message: "Journal entry deleted successfully!", data });
+});
+
+export const journalController = { create, getMy, update, remove };

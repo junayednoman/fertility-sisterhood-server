@@ -13,6 +13,7 @@ const create = handleAsyncRequest(async (req: TRequest, res: Response) => {
     data,
   });
 });
+
 const getMy = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const data = await symptomServices.getMy(
     req.user!.id,
@@ -20,9 +21,27 @@ const getMy = handleAsyncRequest(async (req: TRequest, res: Response) => {
   );
   sendResponse(res, { message: "Symptoms fetched successfully!", data });
 });
+
 const getToday = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const data = await symptomServices.getToday(req.user!.id);
   sendResponse(res, { message: "Today's symptom fetched successfully!", data });
 });
 
-export const symptomController = { create, getMy, getToday };
+const update = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await symptomServices.update(
+    req.user!.id,
+    req.params.id as string,
+    req.body
+  );
+  sendResponse(res, { message: "Symptom updated successfully!", data });
+});
+
+const remove = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await symptomServices.remove(
+    req.user!.id,
+    req.params.id as string
+  );
+  sendResponse(res, { message: "Symptom deleted successfully!", data });
+});
+
+export const symptomController = { create, getMy, getToday, update, remove };

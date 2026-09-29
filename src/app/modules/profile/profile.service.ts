@@ -1,12 +1,10 @@
-import { UserRole } from "@prisma/client";
 import prisma from "../../utils/prisma.js";
-import { TProfileUpdate } from "./admin.validation.js";
+import { TProfileUpdate } from "./profile.validation.js";
 
 const getProfile = async (authId: string) => {
   const profile = await prisma.auth.findUniqueOrThrow({
     where: {
       id: authId,
-      role: UserRole.ADMIN,
     },
     select: {
       id: true,
@@ -26,7 +24,6 @@ const updateProfile = async (authId: string, payload: TProfileUpdate) => {
   const result = await prisma.auth.update({
     where: {
       id: authId,
-      role: UserRole.ADMIN,
     },
     data: payload,
     select: {
@@ -43,7 +40,7 @@ const updateProfile = async (authId: string, payload: TProfileUpdate) => {
   return result;
 };
 
-export const adminServices = {
+export const profileServices = {
   getProfile,
   updateProfile,
 };

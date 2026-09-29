@@ -1,11 +1,11 @@
 import { Response } from "express";
 import { TRequest } from "../../interface/global.interface.js";
 import handleAsyncRequest from "../../utils/handleAsyncRequest.js";
-import { adminServices } from "./admin.service.js";
+import { profileServices } from "./profile.service.js";
 import { sendResponse } from "../../utils/sendResponse.js";
 
 const getProfile = handleAsyncRequest(async (req: TRequest, res: Response) => {
-  const result = await adminServices.getProfile(req.user?.id as string);
+  const result = await profileServices.getProfile(req.user?.id as string);
   sendResponse(res, {
     message: "Profile fetched successfully!",
     data: result,
@@ -14,7 +14,7 @@ const getProfile = handleAsyncRequest(async (req: TRequest, res: Response) => {
 
 const updateProfile = handleAsyncRequest(
   async (req: TRequest, res: Response) => {
-    const result = await adminServices.updateProfile(
+    const result = await profileServices.updateProfile(
       req.user?.id as string,
       req.body
     );
@@ -25,7 +25,7 @@ const updateProfile = handleAsyncRequest(
   }
 );
 
-export const adminController = {
+export const profileController = {
   getProfile,
   updateProfile,
 };

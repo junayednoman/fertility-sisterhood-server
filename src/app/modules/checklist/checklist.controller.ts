@@ -15,6 +15,7 @@ const create = handleAsyncRequest(async (req: TRequest, res: Response) => {
     data,
   });
 });
+
 const getToday = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const { category } = checklistQueryZod.parse(req.query);
   const data = await checklistServices.getToday(
@@ -27,6 +28,7 @@ const getToday = handleAsyncRequest(async (req: TRequest, res: Response) => {
     data,
   });
 });
+
 const markDone = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const data = await checklistServices.markDone(
     req.user!.id,
@@ -34,4 +36,28 @@ const markDone = handleAsyncRequest(async (req: TRequest, res: Response) => {
   );
   sendResponse(res, { message: "Checklist item marked as completed!", data });
 });
-export const checklistController = { create, getToday, markDone };
+
+const update = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await checklistServices.update(
+    req.user!.id,
+    req.params.id as string,
+    req.body
+  );
+  sendResponse(res, { message: "Checklist item updated successfully!", data });
+});
+
+const remove = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await checklistServices.remove(
+    req.user!.id,
+    req.params.id as string
+  );
+  sendResponse(res, { message: "Checklist item deleted successfully!", data });
+});
+
+export const checklistController = {
+  create,
+  getToday,
+  markDone,
+  update,
+  remove,
+};

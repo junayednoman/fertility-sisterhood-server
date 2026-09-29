@@ -13,6 +13,7 @@ const create = handleAsyncRequest(async (req: TRequest, res: Response) => {
     data,
   });
 });
+
 const getMy = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const data = await appointmentServices.getMy(
     req.user!.id,
@@ -20,6 +21,7 @@ const getMy = handleAsyncRequest(async (req: TRequest, res: Response) => {
   );
   sendResponse(res, { message: "Appointments fetched successfully!", data });
 });
+
 const getSingle = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const data = await appointmentServices.getSingle(
     req.user!.id,
@@ -27,4 +29,28 @@ const getSingle = handleAsyncRequest(async (req: TRequest, res: Response) => {
   );
   sendResponse(res, { message: "Appointment fetched successfully!", data });
 });
-export const appointmentController = { create, getMy, getSingle };
+
+const update = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await appointmentServices.update(
+    req.user!.id,
+    req.params.id as string,
+    req.body
+  );
+  sendResponse(res, { message: "Appointment updated successfully!", data });
+});
+
+const remove = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await appointmentServices.remove(
+    req.user!.id,
+    req.params.id as string
+  );
+  sendResponse(res, { message: "Appointment deleted successfully!", data });
+});
+
+export const appointmentController = {
+  create,
+  getMy,
+  getSingle,
+  update,
+  remove,
+};

@@ -8,4 +8,8 @@ export const createMedicationZod = z.object({
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
 });
+
 export type TCreateMedication = z.infer<typeof createMedicationZod>;
+
+export const updateMedicationZod = createMedicationZod.partial();
+export type TUpdateMedication = z.infer<typeof updateMedicationZod>;

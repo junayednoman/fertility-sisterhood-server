@@ -13,6 +13,7 @@ const create = handleAsyncRequest(async (req: TRequest, res: Response) => {
     data,
   });
 });
+
 const getMy = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const data = await medicationServices.getMy(
     req.user!.id,
@@ -20,6 +21,7 @@ const getMy = handleAsyncRequest(async (req: TRequest, res: Response) => {
   );
   sendResponse(res, { message: "Medications fetched successfully!", data });
 });
+
 const getSingle = handleAsyncRequest(async (req: TRequest, res: Response) => {
   const data = await medicationServices.getSingle(
     req.user!.id,
@@ -27,4 +29,28 @@ const getSingle = handleAsyncRequest(async (req: TRequest, res: Response) => {
   );
   sendResponse(res, { message: "Medication fetched successfully!", data });
 });
-export const medicationController = { create, getMy, getSingle };
+
+const update = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await medicationServices.update(
+    req.user!.id,
+    req.params.id as string,
+    req.body
+  );
+  sendResponse(res, { message: "Medication updated successfully!", data });
+});
+
+const remove = handleAsyncRequest(async (req: TRequest, res: Response) => {
+  const data = await medicationServices.remove(
+    req.user!.id,
+    req.params.id as string
+  );
+  sendResponse(res, { message: "Medication deleted successfully!", data });
+});
+
+export const medicationController = {
+  create,
+  getMy,
+  getSingle,
+  update,
+  remove,
+};

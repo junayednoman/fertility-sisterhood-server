@@ -5,15 +5,9 @@ import {
   TPaginationOptions,
 } from "../../utils/paginationCalculation.js";
 import prisma from "../../utils/prisma.js";
-import { TCreateChecklist } from "./checklist.validation.js";
+import { getDayBounds } from "../../utils/getDayBounds.js";
+import { TCreateChecklist, TUpdateChecklist } from "./checklist.validation.js";
 
-const getDayBounds = (date: Date) => {
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
-  return { gte: start, lt: end };
-};
 const create = async (authId: string, payload: TCreateChecklist) =>
   prisma.checklist.create({
     data: {
@@ -25,6 +19,7 @@ const create = async (authId: string, payload: TCreateChecklist) =>
     },
     select: { id: true, title: true, category: true, date: true, status: true },
   });
+
 const getToday = async (
   authId: string,
   options: TPaginationOptions,
@@ -48,6 +43,7 @@ const getToday = async (
   ]);
   return { meta: { page, limit: take, total }, checklists };
 };
+
 const markDone = async (authId: string, id: string) => {
   const item = await prisma.checklist.findFirst({
     where: { id, authId },
@@ -60,4 +56,36 @@ const markDone = async (authId: string, id: string) => {
     select: { id: true, title: true, status: true },
   });
 };
-export const checklistServices = { create, getToday, markDone };
+
+const update = async (
+  authId: string,
+  id: string,
+  payload: TUpdateChecklist
+) => {
+  const item = await prisma.checklist.findFirst({
+    where: { id, authId },
+    select: { id: true },
+  });
+  if (!item) throw new ApiError(404, "Checklist item not found");
+
+  return prisma.checklist.update({
+    where: { id },
+    data: payload,
+    select: { id: true, title: true, category: true, date: true, status: true },
+  });
+};
+
+const remove = async (authId: string, id: string) => {
+  const item = await prisma.checklist.findFirst({
+    where: { id, authId },
+    select: { id: true },
+  });
+  if (!item) throw new ApiError(404, "Checklist item not found");
+
+  return prisma.checklist.delete({
+    where: { id },
+    select: { id: true, title: true, category: true, date: true, status: true },
+  });
+};
+
+export const checklistServices = { create, getToday, markDone, update, remove };

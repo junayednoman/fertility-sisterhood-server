@@ -4,7 +4,10 @@ import {
   TPaginationOptions,
 } from "../../utils/paginationCalculation.js";
 import prisma from "../../utils/prisma.js";
-import { TCreateAppointment } from "./appointment.validation.js";
+import {
+  TCreateAppointment,
+  TUpdateAppointment,
+} from "./appointment.validation.js";
 
 const create = async (authId: string, payload: TCreateAppointment) =>
   prisma.appointment.create({
@@ -13,7 +16,6 @@ const create = async (authId: string, payload: TCreateAppointment) =>
       doctor: payload.doctor,
       date: payload.date,
       time: payload.time,
-      questions: { create: payload.questions.map(text => ({ text, authId })) },
     },
     select: {
       id: true,
@@ -21,7 +23,6 @@ const create = async (authId: string, payload: TCreateAppointment) =>
       date: true,
       time: true,
       createdAt: true,
-      questions: { select: { id: true, text: true } },
     },
   });
 
@@ -63,4 +64,42 @@ const getSingle = async (authId: string, id: string) => {
   return appointment;
 };
 
-export const appointmentServices = { create, getMy, getSingle };
+const update = async (
+  authId: string,
+  id: string,
+  payload: TUpdateAppointment
+) => {
+  const appointment = await prisma.appointment.findFirst({
+    where: { id, authId },
+    select: { id: true },
+  });
+  if (!appointment) throw new ApiError(404, "Appointment not found");
+
+  return prisma.appointment.update({
+    where: { id },
+    data: payload,
+    select: {
+      id: true,
+      doctor: true,
+      date: true,
+      time: true,
+      createdAt: true,
+    },
+  });
+};
+
+const remove = async (authId: string, id: string) => {
+  const appointment = await prisma.appointment.findFirst({
+    where: { id, authId },
+    select: { id: true },
+  });
+  if (!appointment) throw new ApiError(404, "Appointment not found");
+
+  await prisma.question.deleteMany({ where: { appointmentId: id } });
+  return prisma.appointment.delete({
+    where: { id },
+    select: { id: true, doctor: true, date: true, time: true, createdAt: true },
+  });
+};
+
+export const appointmentServices = { create, getMy, getSingle, update, remove };
