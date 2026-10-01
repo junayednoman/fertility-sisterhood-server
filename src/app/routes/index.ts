@@ -9,6 +9,10 @@ import { medicationRoutes } from "../modules/medication/medication.routes.js";
 import { journalRoutes } from "../modules/journal/journal.routes.js";
 import { checklistRoutes } from "../modules/checklist/checklist.routes.js";
 import { profileRoutes } from "../modules/profile/profile.routes.js";
+import { costRoutes } from "../modules/cost/cost.routes.js";
+import { testResultRoutes } from "../modules/testResult/testResult.routes.js";
+import { noteRoutes } from "../modules/note/note.routes.js";
+import { questionRoutes } from "../modules/question/question.routes.js";
 
 const router = Router();
 
@@ -23,6 +27,10 @@ const routes = [
   { path: "/medications", route: medicationRoutes },
   { path: "/journals", route: journalRoutes },
   { path: "/checklists", route: checklistRoutes },
+  { path: "/costs", route: costRoutes },
+  { path: "/test-results", route: testResultRoutes },
+  { path: "/notes", route: noteRoutes },
+  { path: "/questions", route: questionRoutes },
 ];
 
 routes.forEach(route => {

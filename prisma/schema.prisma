@@ -142,6 +142,7 @@ model TestResult {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   authId    String   @db.ObjectId
   auth      Auth     @relation(fields: [authId], references: [id])
+  category  String?
   name      String
   date      DateTime
   value     String
